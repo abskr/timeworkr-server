@@ -39,7 +39,7 @@ export const createRow = async(req, res) => {
       task
     });
     const row = await newRow.save()
-    const updateSheet = await SheetModel.updateSheetSum(sheetId)
+    const updateSheet = await SheetModel.updateSheetSum(sheetId, userId)
     res.json({
       created : {
         rowId : row._id

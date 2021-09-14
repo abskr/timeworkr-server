@@ -127,7 +127,6 @@ RowSchema.pre('findOneAndUpdate', async function (next) {
     if (end.isBefore(start)) end.add(1, 'day');
 
     let dur = moment.duration(end.diff(start));
-    // dur.subtract(row.pause, 'minutes');
 
     const durationAsHour = dur.subtract(row.pause, 'minutes').asHours();
 
@@ -170,7 +169,7 @@ RowSchema.post('save', async function (doc) {
   try {
     const sheet = await SheetModel.findByIdAndUpdate(
       doc.sheetId,
-      { $push: { rows: doc._id } },
+      { $addToSet: { rows: mongoose.Types.ObjectId(doc._id) } },
       { new: true, upsert: true }
     );
     console.log(sheet)
