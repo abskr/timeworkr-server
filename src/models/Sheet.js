@@ -13,8 +13,8 @@ const SheetSchema = new Schema(
     },
     month: {
       type: Number,
-      min: 0,
-      max: 11,
+      min: 1,
+      max: 12,
       required: true,
     },
     year: {

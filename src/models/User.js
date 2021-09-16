@@ -23,6 +23,7 @@ const UserSchema = new Schema(
       required: true,
       trim: true,
     },
+    iban: String,
     hashPassword: {
       type: String,
       required: true,

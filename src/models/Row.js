@@ -15,19 +15,39 @@ export const RowSchema = new Schema(
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'user',
-      required: true
+      required: true,
     },
     date: {
-      type: String,
+      type: Number,
       required: true,
     },
     startTime: {
-      type: String,
-      required: true,
+      hour: {
+        type: Number,
+        min: 0,
+        max: 23,
+        reruired: true,
+      },
+      minute: {
+        type: Number,
+        min: 0,
+        max: 59,
+        reruired: true,
+      },
     },
     endTime: {
-      type: String,
-      required: true,
+      hour: {
+        type: Number,
+        min: 0,
+        max: 23,
+        reruired: true,
+      },
+      minute: {
+        type: Number,
+        min: 0,
+        max: 59,
+        reruired: true,
+      },
     },
     pause: {
       type: Number,
@@ -37,15 +57,21 @@ export const RowSchema = new Schema(
     duration: {
       type: Number,
       default: function () {
-        console.log(this);
-        let start = moment.utc(this.startTime, 'HH:mm');
-        let end = moment.utc(this.endTime, 'HH:mm');
+        // console.log(this);
+        let start = moment.utc(
+          `${this.startTime.hour}:${this.startTime.munte}`,
+          'HH:mm'
+        );
+        let end = moment.utc(
+          `${this.endTime.hour}:${this.endTime.munte}`,
+          'HH:mm'
+        );
 
         if (end.isBefore(start)) end.add(1, 'day');
 
         let dur = moment.duration(end.diff(start));
 
-        const durationAsHour = dur.subtract(this.pause, 'minutes').asHours()
+        const durationAsHour = dur.subtract(this.pause, 'minutes').asHours();
 
         return durationAsHour;
       },
@@ -66,7 +92,7 @@ export const RowSchema = new Schema(
     overtime: {
       type: Number,
       default: function () {
-        if (!this.plannedTime.hours && !this.plannedTime.minutes ) {
+        if (!this.plannedTime.hours && !this.plannedTime.minutes) {
           return null;
         }
 
@@ -85,44 +111,52 @@ export const RowSchema = new Schema(
     rate: {
       per: {
         type: String,
-        enum: ['hour', 'day', '']
+        enum: ['hour', 'day', ''],
       },
       amount: {
         type: Number,
-        min: 0
-      }
+        min: 0,
+      },
     },
     income: {
       type: Number,
       default: function () {
         if (this.rate.per === 'hour') {
-          return this.duration * this.rate.amount
+          return this.duration * this.rate.amount;
         } else if (this.rate.per === 'day') {
-          return this.rate.amount
+          return this.rate.amount;
         } else {
-          return null
+          return null;
         }
-      }
+      },
     },
-    task: String
+    task: String,
   },
   {
     timestamps: true,
   }
 );
 
+RowSchema.post('findOneAndDelete', async function (row) {
+  await SheetModel.updateSheetSum(row.sheetId, row.userId);
+})
+
 RowSchema.post('findOneAndUpdate', async function (row) {
-  await SheetModel.updateSheetSum(row.sheetId,row.userId )
-  // const updatedRow = await this.model.findOne(this.getQuery());
-  // console.log(updatedRow)
+  await SheetModel.updateSheetSum(row.sheetId,row.userId)
 })
 
 RowSchema.pre('findOneAndUpdate', async function (next) {
   const row = this._update;
 
   const newDuration = function () {
-    let start = moment.utc(row.startTime, 'HH:mm');
-    let end = moment.utc(row.endTime, 'HH:mm');
+    let start = moment.utc(
+      `${row.startTime.hour}:${row.startTime.minute}`,
+      'HH:mm'
+    );
+    let end = moment.utc(
+      `${row.endTime.hour}:${row.endTime.minute}`,
+      'HH:mm'
+    );
 
     if (end.isBefore(start)) end.add(1, 'day');
 
@@ -167,13 +201,13 @@ RowSchema.pre('findOneAndUpdate', async function (next) {
 
 RowSchema.post('save', async function (doc) {
   try {
-    const sheet = await SheetModel.findByIdAndUpdate(
+    await SheetModel.findByIdAndUpdate(
       doc.sheetId,
       { $addToSet: { rows: mongoose.Types.ObjectId(doc._id) } },
       { new: true, upsert: true }
     );
-    console.log(sheet)
-    // console.log(doc)
+
+    await SheetModel.updateSheetSum(doc.sheetId, doc.userId)
   } catch (error) {
     console.log(error)
   }
