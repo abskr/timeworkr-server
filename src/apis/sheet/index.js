@@ -18,9 +18,9 @@ import {
 const route = Router()
 
 // @route /api/sheet
-route.get('/', requireSignIn, authMiddleware, getUserSheetByQuery);
+route.get('/', requireSignIn, getUserSheets)
 route.post('/', requireSignIn, authMiddleware, createSheet)
-// route.get('/', requireSignIn, getUserSheets)
+route.get('/?', requireSignIn, authMiddleware, getUserSheetByQuery);
 
 route.delete('/:sheetId', requireSignIn, authMiddleware, deleteUserSheet)
 route.get('/:sheetId', requireSignIn, authMiddleware, getUserSheetById)

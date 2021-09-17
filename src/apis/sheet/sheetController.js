@@ -84,7 +84,7 @@ export const getUserSheetByQuery = async (req, res) => {
     ...(criteria.dur && { duration: criteria.dur}),
     ...(criteria.amount && { 'rate.amount': criteria.amount }),
     ...(criteria.per && { 'rate.per': criteria.per }),
-    ...(criteria.task && { task: criteria.task }),
+    ...(criteria.task && { task: { $regex: criteria.task, $options: "i" } }),
   };
 
   console.log(rowCriteria)
@@ -125,8 +125,6 @@ export const getUserSheetByQuery = async (req, res) => {
 export const getUserSheetById = async(req, res) => {
   const userId = req.user._id
   const _id = req.params.sheetId
-  console.log('req.profile: ', req.profile)
-  console.log('req.user: ', req.user)
 
   if(!isValidOId(_id)) {
     return res.status(422).json(

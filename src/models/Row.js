@@ -138,6 +138,9 @@ export const RowSchema = new Schema(
 );
 
 RowSchema.post('findOneAndDelete', async function (row) {
+  await SheetModel.findOneAndUpdate({_id: row.sheetId, userId: row.userId}, {
+    $pull: { rows: row._id }
+  })
   await SheetModel.updateSheetSum(row.sheetId, row.userId);
 })
 
