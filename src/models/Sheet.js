@@ -13,8 +13,8 @@ const SheetSchema = new Schema(
     },
     month: {
       type: Number,
-      min: 0,
-      max: 11,
+      min: 1,
+      max: 12,
       required: true,
     },
     year: {
@@ -22,14 +22,14 @@ const SheetSchema = new Schema(
       min: 1000,
       max: 9999,
     },
+    rows: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'row',
+      },
+    ],
     sumWorkingHours: Number,
     sumIncome: Number
-  },
-  {
-    rows : [{
-      type: Schema.Types.ObjectId,
-      ref: 'row'
-    }]
   },
   {
     timestamps: true,
@@ -40,12 +40,14 @@ SheetSchema.statics.updateSheetSum = async function (sheetId, userId) {
   try {
   const matchFilter = {
     sheetId: mongoose.Types.ObjectId(sheetId),
-    // userId: mongoose.Types.ObjectId(userId),
+    userId: mongoose.Types.ObjectId(userId),
   };
   const sum = await RowModel.aggregate([
     { $match: matchFilter },
     { $group: { _id: '$sheetId', totalHours: { $sum: '$duration' }, totalIncome: { $sum: '$income' } } },
   ]);
+
+  console.log(sum)
   
   const update = await this.findByIdAndUpdate(
     sheetId,
@@ -65,7 +67,4 @@ SheetSchema.statics.updateSheetSum = async function (sheetId, userId) {
   }
 };
 
-// SheetSchema.pre('save', function() {
-//   console.log(this)
-// })
 export default model('sheet', SheetSchema);

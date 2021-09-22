@@ -59,10 +59,10 @@ export const signIn = (req, res) => {
 
       res.cookie("token", token, { expiresIn: "1d" })
 
-      const { _id, firstName, lastName, email } = user
+      const { _id, firstName, lastName, email, iban } = user
       return res.json({
         token,
-        user: { _id, firstName, lastName, email },
+        user: { _id, firstName, lastName, email, iban },
       });
     })
 }
@@ -96,13 +96,14 @@ export const authMiddleware = (req, res, next) => {
           error: 'User not found',
         })
       }
-      req.profile = user
+      const {firstName, lastName, email, iban} = user
+      req.profile = { firstName, lastName, email, ...(iban && {iban}) };
       res.header('Access-Control-Allow-Credentials', true)
       next()
     })
 }
 
-const updateUser = async(req, res) => {
+export const updateUser = async(req, res) => {
   const userId = req.user._id
   try {
     const user = await UserModel.findById(userId)
@@ -112,9 +113,9 @@ const updateUser = async(req, res) => {
       })
     }
 
-    const { email, firstName, lastName } = req.body
+    const { email, firstName, lastName, iban } = req.body
     const updateInput = await UserModel.findByIdAndUpdate(userId,
-      { email, firstName, lastName },
+      { email, firstName, lastName, iban },
       { new: true, omitUndefined: true })
     res.json(updateInput)
   } catch (error) {
