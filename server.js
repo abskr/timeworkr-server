@@ -10,7 +10,7 @@ import mongoose from 'mongoose'
 import authRoutes from './src/apis/auth/index.js'
 import sheetRoutes from './src/apis/sheet/index.js'
 import rowRoutes from './src/apis/row/index.js'
-import { requireSignIn } from '/users/abskr/documents/studium/strive/timeworkr/server/src/apis/auth/authcontroller.js'
+import { requireSignIn } from '/users/abskr/documents/studium/strive/timeworkr/server/src/apis/auth/authController.js'
 import { authMiddleware } from './src/apis/auth/authController.js'
 // import testerRoutes from './src/apis/tester/index.js'
 
