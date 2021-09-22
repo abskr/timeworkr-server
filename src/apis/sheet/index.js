@@ -1,5 +1,4 @@
 import { Router } from "express"
-import { authMiddleware, requireSignIn } from '../auth/authController.js';
 import {
   createSheet,
   deleteUserSheet,
@@ -18,12 +17,12 @@ import {
 const route = Router()
 
 // @route /api/sheet
-route.get('/', requireSignIn, getUserSheets)
-route.post('/', requireSignIn, authMiddleware, createSheet)
-route.get('/?', requireSignIn, authMiddleware, getUserSheetByQuery);
 
-route.delete('/:sheetId', requireSignIn, authMiddleware, deleteUserSheet)
-route.get('/:sheetId', requireSignIn, authMiddleware, getUserSheetById)
-route.get('/:sheetId/download', requireSignIn, authMiddleware, downloadSheet)
+route.get('/usersheets', getUserSheets)
+route.post('/new',  createSheet)
+route.get('/?', getUserSheetByQuery);
+route.delete('/id/:sheetId', deleteUserSheet)
+route.get('/id/:sheetId',  getUserSheetById)
+route.get('/id/:sheetId/download', downloadSheet)
 
 export default route

@@ -114,7 +114,6 @@ export const editRow = async(req, res) => {
       pause,
       plannedTime,
       rate,
-      order,
       task
     } = req.body;
 
@@ -139,10 +138,6 @@ export const editRow = async(req, res) => {
         rate: {
           per: rate.per,
           amount: rate.amount,
-        },
-        order: {
-          from: order.from,
-          task: order.task,
         },
         task,
       },
