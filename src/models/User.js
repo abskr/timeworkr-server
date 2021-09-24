@@ -23,7 +23,49 @@ const UserSchema = new Schema(
       required: true,
       trim: true,
     },
-    iban: String,
+    templates: [
+      new Schema({
+        tempName: {type: String, required: true},
+        startTime: {
+          hour: {
+            type: Number,
+            min: 0,
+            max: 23,
+            reruired: true,
+          },
+          minute: {
+            type: Number,
+            min: 0,
+            max: 59,
+            reruired: true,
+          },
+        },
+        duration: {
+          hours: {
+            type: Number,
+            default: 0,
+            min: 0,
+          },
+          minutes: {
+            type: Number,
+            default: 0,
+            min: 0,
+            max: 59,
+          },
+        },
+        rate: {
+          per: {
+            type: String,
+            enum: ['hour', 'day', ''],
+          },
+          amount: {
+            type: Number,
+            min: 0,
+          },
+        },
+        task: String,
+      }),
+    ],
     hashPassword: {
       type: String,
       required: true,

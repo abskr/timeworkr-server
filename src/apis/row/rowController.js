@@ -18,32 +18,11 @@ export const createRow = async(req, res) => {
       });
     }
     
-    const { date, startTime, endTime, pause, plannedTime, rate, task } = req.body
+    const inputs = req.body
+    inputs.userId = userId
+    inputs.sheetId = sheetId
 
-    let newRow = new RowModel({
-      sheetId,
-      userId,
-      date,
-      startTime: {
-        hour: startTime.hour,
-        minute: startTime.minute,
-      },
-      endTime: {
-        hour: endTime.hour,
-        minute: endTime.minute,
-      },
-      pause,
-      plannedTime: {
-        hours: plannedTime.hours,
-        minutes: plannedTime.minutes,
-      },
-      rate: {
-        per: rate.per,
-        amount: rate.amount,
-      },
-      task,
-    });
-    console.log(newRow)
+    let newRow = new RowModel(inputs);
     const row = await newRow.save()
     res.json({
         row
@@ -107,40 +86,12 @@ export const editRow = async(req, res) => {
       });
     }
 
-    const {
-      date,
-      startTime,
-      endTime,
-      pause,
-      plannedTime,
-      rate,
-      task
-    } = req.body;
+    const inputs = req.body;
 
     
     const row = await RowModel.findOneAndUpdate(
       { _id: rowId, sheetId, userId },
-      {
-        date,
-        startTime: {
-          hour: startTime.hour,
-          minute: startTime.minute,
-        },
-        endTime: {
-          hour: endTime.hour,
-          minute: endTime.minute,
-        },
-        pause,
-        plannedTime: {
-          hours: plannedTime.hours,
-          minutes: plannedTime.minutes,
-        },
-        rate: {
-          per: rate.per,
-          amount: rate.amount,
-        },
-        task,
-      },
+      inputs,
       { new: true, omitUndefined: true }
     );
 

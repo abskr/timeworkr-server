@@ -5,6 +5,8 @@ import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import mongoose from 'mongoose'
+import {} from './src/config/passport.js'
+import setHeader from './src/config/setHeader.js'
 
 // import routes
 import authRoutes from './src/apis/auth/index.js'
@@ -54,10 +56,13 @@ const corsOptions = {
 server.use(cors(corsOptions))
 
 // add headers
-server.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', process.env.FE_DEV || process.env.FE_PROD);
+server.use('/api/sheet', (req, res, next) => {
+  res.setHeader(
+    'Access-Control-Allow-Origin',
+    process.env.FE_DEV || process.env.FE_PROD
+  );
   res.setHeader('Access-Control-Allow-Credentials', true);
-  next()
+  next();
 })
 
 

@@ -1,5 +1,4 @@
-import { Strategy as JwtStrategy } from 'passport-jwt';
-import { ExtractJwt } from 'passport-jwt';
+import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 
 import User from '../models/User.js';
 
@@ -21,3 +20,4 @@ export default (passport) => {
     })
   );
 };
+

@@ -13,9 +13,9 @@ export const register = (req, res) => {
         })
       }
 
-      const { firstName, lastName, email, password } = req.body
+      const inputs = req.body
 
-      let newUser = new UserModel({ firstName, lastName, email, password })
+      let newUser = new UserModel(inputs)
       newUser.save((err, success) => {
         if (err) {
           return res.status(400).json({
@@ -34,6 +34,7 @@ export const signIn = (req, res) => {
   const { email, password } = req.body
 
   // existential check
+  console.log('running...')
   UserModel
     .findOne({ email })
     .exec((err, user) => {
@@ -59,10 +60,10 @@ export const signIn = (req, res) => {
 
       res.cookie("token", token, { expiresIn: "1d" })
 
-      const { _id, firstName, lastName, email, iban } = user
+      const { _id, firstName, lastName, email, templates } = user
       return res.json({
         token,
-        user: { _id, firstName, lastName, email, iban },
+        user: { _id, firstName, lastName, email, templates },
       });
     })
 }
@@ -96,8 +97,8 @@ export const authMiddleware = (req, res, next) => {
           error: 'User not found',
         })
       }
-      const {firstName, lastName, email, iban} = user
-      req.profile = { firstName, lastName, email, ...(iban && {iban}) };
+      const {firstName, lastName, email, templates} = user
+      req.profile = { firstName, lastName, email, ...(templates && {templates}) };
       res.header('Access-Control-Allow-Credentials', true)
       next()
     })
@@ -113,16 +114,67 @@ export const updateUser = async(req, res) => {
       })
     }
 
-    const { email, firstName, lastName, iban } = req.body
+    const inputs = req.body
     const updateInput = await UserModel.findByIdAndUpdate(userId,
-      { email, firstName, lastName, iban },
+      inputs,
       { new: true, omitUndefined: true })
-    res.json(updateInput)
+    const { _id, firstName, lastName, email, templates } = updateInput;
+    res.json({ user: _id, firstName, lastName, email, templates });
   } catch (error) {
     console.log(error)
     res.status(500).json({
       error: 'Generic server error'
     })
   }
-
 }
+
+export const addTemplate = async(req, res) => {
+  const userId = req.user._id
+  try {
+    const inputs = req.body
+    const user = await UserModel.findByIdAndUpdate(
+      userId,
+      {
+        $push: { templates: inputs },
+      },
+      { new: true, omitUndefined: true }
+      )
+    if (!user) {
+      return res.status(404).json({
+        error: 'User not found',
+      });
+    }
+    const {_id, email, firstName, lastName, templates} = user
+    res.json({ user: { _id, email, firstName, lastName, templates } });
+  } catch (error) {
+    res.status(500).json({
+      error: 'Generic server error',
+    });
+  }
+}
+
+export const deleteTemplate = async (req, res) => {
+  const {tempId} = req.params;
+  const userId = req.user._id;
+  try {
+    const user = await UserModel.findByIdAndUpdate(
+      userId,
+      {
+        $pull: { templates: { _id: tempId } },
+      },
+      { new: true, omitUndefined: true }
+    );
+    if (!user) {
+      return res.status(404).json({
+        error: 'User not found',
+      });
+    }
+    const { _id, email, firstName, lastName, templates } = user;
+    res.json({ user: { _id, email, firstName, lastName, templates } });
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      error: 'Generic server error',
+    });
+  }
+};
