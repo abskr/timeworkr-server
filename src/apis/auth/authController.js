@@ -62,7 +62,6 @@ export const signIn = (req, res) => {
 
       const { _id, firstName, lastName, email, templates } = user
       return res.json({
-        token,
         user: { _id, firstName, lastName, email, templates },
       });
     })
